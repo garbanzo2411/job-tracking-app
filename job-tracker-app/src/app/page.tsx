@@ -63,7 +63,7 @@ export default function Home() {
             <div className="flex justify-between">
               <div>
                 <h2 className="font-semibold">{job.company}</h2>
-                <p className="text-sm">{job.role} – <span className="italic">{job.status}</span></p>
+                <p className="text-sm">{job.role}</p>
               </div>
               <div className = {`px-2 py-1 rounded text-sm font-medium ${statusStyles[job.status]}`}>
                 {job.status}
