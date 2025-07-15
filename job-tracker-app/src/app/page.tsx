@@ -1,6 +1,7 @@
 "use client";
 
-import { useState } from 'react';
+import { JSX, useState } from 'react';
+import { Send, Calendar, CheckCircle, XCircle } from 'lucide-react';
 
 interface Job {
   id: number;
@@ -16,6 +17,13 @@ const statusStyles: Record<Job['status'], string> = {
   Interview: 'bg-yellow-100 text-yellow-800',
   Offer: 'bg-green-100 text-green-800',
   Rejected: 'bg-red-100 text-red-800',
+};
+
+const statusIcons: Record<Job['status'], JSX.Element> = {
+  Applied: <Send size={16} className="inline mr-1" />, 
+  Interview: <Calendar size={16} className="inline mr-1" />, 
+  Offer: <CheckCircle size={16} className="inline mr-1" />, 
+  Rejected: <XCircle size={16} className="inline mr-1" />,
 };
 
 export default function Home() {
@@ -65,9 +73,10 @@ export default function Home() {
                 <h2 className="font-semibold">{job.company}</h2>
                 <p className="text-sm">{job.role}</p>
               </div>
-              <div className = {`px-2 py-1 rounded text-sm font-medium ${statusStyles[job.status]}`}>
+              <div className={`flex items-center gap-1 px-2 py-1 rounded text-sm font-medium ${statusStyles[job.status]}`}>
+                {statusIcons[job.status]}
                 {job.status}
-              </div>
+            </div>
               <p className="text-sm text-gray-500">{job.date}</p>
             </div>
             {job.notes && <p className="mt-2 text-sm text-gray-700">{job.notes}</p>}
