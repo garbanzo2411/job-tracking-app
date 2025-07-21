@@ -1,6 +1,6 @@
 "use client";
 
-import { JSX, useState } from 'react';
+import { useEffect, JSX, useState } from 'react';
 import { Send, Calendar, CheckCircle, XCircle, Pencil, X, Save } from 'lucide-react';
 
 interface Job {
@@ -38,6 +38,20 @@ export default function Home() {
 
   const [editJobId, setEditingJobId] = useState<number | null>(null);
   const [editForm, setEditForm] = useState<Partial<Job>>({});
+
+  useEffect(() => {
+    // Load initial jobs from localStorage if available
+    const savedJobs = localStorage.getItem("job-tracker-data");
+    if (savedJobs) {
+      setJobs(JSON.parse(savedJobs));
+    }
+  }, []);
+
+  useEffect(() => {
+    // Save jobs to localStorage whenever they change
+    localStorage.setItem("job-tracker-data", JSON.stringify(jobs));
+  }, [jobs]);
+
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
     setForm({ ...form, [e.target.name]: e.target.value });
