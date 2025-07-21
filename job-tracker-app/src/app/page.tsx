@@ -1,7 +1,7 @@
 "use client";
 
 import { JSX, useState } from 'react';
-import { Send, Calendar, CheckCircle, XCircle } from 'lucide-react';
+import { Send, Calendar, CheckCircle, XCircle, Pencil, X, Save } from 'lucide-react';
 
 interface Job {
   id: number;
@@ -36,8 +36,15 @@ export default function Home() {
     notes: '',
   });
 
+  const [editJobId, setEditingJobId] = useState<number | null>(null);
+  const [editForm, setEditForm] = useState<Partial<Job>>({});
+
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
     setForm({ ...form, [e.target.name]: e.target.value });
+  };
+
+  const handleEditChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
+    setEditForm({ ...editForm, [e.target.name]: e.target.value });
   };
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -45,6 +52,22 @@ export default function Home() {
     const newJob: Job = { ...form, id: Date.now() } as Job;
     setJobs([newJob, ...jobs]);
     setForm({ company: '', role: '', status: 'Applied', date: '', notes: '' });
+  };
+
+  const startEditing = (job: Job) => {
+    setEditingJobId(job.id);
+    setEditForm({...job});
+  };
+
+  const cancelEditing = () => {
+    setEditingJobId(null);
+    setEditForm({});
+  };
+
+  const saveEdit = (id: number) => {
+    setJobs(jobs.map(job => job.id === id ? { ...job, ...editForm } : job));
+    setEditingJobId(null);
+    setEditForm({}); 
   };
 
   return (
@@ -68,18 +91,44 @@ export default function Home() {
       <div className="mt-8 space-y-4">
         {jobs.map((job) => (
           <div key={job.id} className="p-4 bg-gray-50 border rounded-xl shadow">
-            <div className="flex justify-between">
-              <div>
-                <h2 className="font-semibold">{job.company}</h2>
-                <p className="text-sm">{job.role}</p>
-              </div>
-              <div className={`flex items-center gap-1 px-2 py-1 rounded text-sm font-medium ${statusStyles[job.status]}`}>
-                {statusIcons[job.status]}
-                {job.status}
-            </div>
-              <p className="text-sm text-gray-500">{job.date}</p>
-            </div>
-            {job.notes && <p className="mt-2 text-sm text-gray-700">{job.notes}</p>}
+            {editJobId === job.id ? (
+              <>
+                <input name="company" value={editForm.company || ''} onChange={handleEditChange} className="w-full p-1 border mb-1 rounded" />
+                <input name="role" value={editForm.role || ''} onChange={handleEditChange} className="w-full p-1 border mb-1 rounded" />
+                <select name="status" value={editForm.status || 'Applied'} onChange={handleEditChange} className="w-full p-1 border mb-1 rounded">
+                  <option>Applied</option>
+                  <option>Interview</option>
+                  <option>Offer</option>
+                  <option>Rejected</option>
+                </select>
+                <input name="date" type="date" value={editForm.date || ''} onChange={handleEditChange} className="w-full p-1 border mb-1 rounded" />
+                <textarea name="notes" value={editForm.notes || ''} onChange={handleEditChange} className="w-full p-1 border mb-2 rounded" />
+                <div className="flex gap-2">
+                  <button onClick={() => saveEdit(job.id)} className="flex items-center gap-1 bg-green-600 text-white px-2 py-1 rounded"><Save size={16}/> Save</button>
+                  <button onClick={cancelEditing} className="flex items-center gap-1 bg-gray-400 text-white px-2 py-1 rounded"><X size={16}/> Cancel</button>
+                </div>
+              </>
+            ) : (
+              <>
+                <div className="flex justify-between items-center">
+                  <div>
+                    <h2 className="font-semibold">{job.company}</h2>
+                    <p className="text-sm">{job.role}</p>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <div className={`flex items-center gap-1 px-2 py-1 rounded text-sm font-medium ${statusStyles[job.status]}`}>
+                      {statusIcons[job.status]}
+                      {job.status}
+                    </div>
+                    <button onClick={() => startEditing(job)} className="text-gray-500 hover:text-black">
+                      <Pencil size={16} />
+                    </button>
+                  </div>
+                </div>
+                <p className="text-sm text-gray-500 mt-1">{job.date}</p>
+                {job.notes && <p className="mt-2 text-sm text-gray-700">{job.notes}</p>}
+              </>
+            )}
           </div>
         ))}
       </div>
